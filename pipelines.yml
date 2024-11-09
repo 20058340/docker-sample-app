@@ -1,0 +1,57 @@
+# azure-pipelines.yml
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Docker Hub credentials
+  dockerHubUsername: 'barath0023'
+  dockerHubPassword: '7bb2i8ctht'
+  dockerImageName: 'docimg'
+  
+  # Azure details
+  azureSubscription: 'Azure for Students'
+  resourceGroupName: 'NetworkWatcherRG'
+  containerName: 'barath'
+
+steps:
+  # Step 1: Login to Docker Hub
+  - task: Docker@2
+    inputs:
+      command: 'login'
+      containerRegistry: 'DockerHub'
+      dockerRegistryEndpoint: $(dockerHubUsername)
+      username: $(dockerHubUsername)
+      password: $(dockerHubPassword)
+
+  # Step 2: Build Docker image
+  - task: Docker@2
+    inputs:
+      command: 'build'
+      Dockerfile: '**/Dockerfile'
+      tags: '$(dockerHubUsername)/$(dockerImageName):$(Build.BuildId)'
+
+  # Step 3: Push Docker image to Docker Hub
+  - task: Docker@2
+    inputs:
+      command: 'push'
+      tags: '$(dockerHubUsername)/$(dockerImageName):$(Build.BuildId)'
+
+  # Step 4: Deploy container to Azure Container Instances
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: '$(azureSubscription)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az container create \
+          --resource-group $(resourceGroupName) \
+          --name $(containerName) \
+          --image $(dockerHubUsername)/$(dockerImageName):$(Build.BuildId) \
+          --dns-name-label $(containerName)-dns \
+          --ports 80
