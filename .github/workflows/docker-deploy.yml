@@ -45,7 +45,7 @@ jobs:
           chmod 400 /tmp/ec2key.pem
 
       # Step 2: SSH into EC2, Install Docker if Needed, and Deploy Container
-      - name: SSH into EC2 and Deploy Docker Container
+        - name: SSH into EC2 and Deploy Docker Container
         run: |
           ssh -o StrictHostKeyChecking=no -i /tmp/ec2key.pem ec2-user@63.35.220.240 << 'EOF'
             # Install Docker if not installed
@@ -54,12 +54,11 @@ jobs:
               sudo yum install -y docker
               sudo systemctl enable --now docker
             fi
-
-            # Stop and remove existing container, if any
-            docker stop sample-app || true
-            docker rm sample-app || true
-
+            
+            # Stop any process currently using port 80
+            sudo fuser -k 80/tcp || true
+            
             # Pull and run the Docker container
             docker pull barath0023/sample-app:latest
-            docker run -d --name sample-app -p 80:80 barath0023/sample-app:latest
+            docker run -d --name sample-app -p 80:80 barath0023/sample-app:latest || docker run -d --name sample-app -p 8080:80 barath0023/sample-app:latest
           EOF
