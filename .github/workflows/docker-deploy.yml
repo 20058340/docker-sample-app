@@ -44,7 +44,17 @@ jobs:
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > /tmp/ec2key.pem
           chmod 400 /tmp/ec2key.pem
 
-      # Step 2: SSH into EC2 instance to deploy Docker container
-      - name: SSH into EC2 and Deploy Docker Container
+      # Step 2: SSH into EC2 and Ensure Docker is Installed
+      - name: SSH into EC2 and Install Docker if Necessary
         run: |
-          ssh -o StrictHostKeyChecking=no -i /tmp/ec2key.pem ec2-user@63.35.220.240 "docker pull barath0023/sample-app:latest && docker run -d -p 80:80 barath0023/sample-app:latest"
+          ssh -o StrictHostKeyChecking=no -i /tmp/ec2key.pem ec2-user@63.35.220.240 << 'EOF'
+            # Check if Docker is installed
+            if ! command -v docker &> /dev/null; then
+              echo "Docker not found, installing..."
+              sudo yum install -y docker
+              sudo systemctl enable --now docker
+            fi
+            # Pull and run the Docker container
+            docker pull barath0023/sample-app:latest
+            docker run -d -p 80:80 barath0023/sample-app:latest
+          EOF
