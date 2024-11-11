@@ -75,6 +75,11 @@ jobs:
             echo "Attempting to run on port 80..."
             if ! docker run -d --name sample-app -p 80:80 barath0023/sample-app:latest; then
               echo "Port 80 failed. Attempting to run on port 8081..."
+
+              # Remove any container that may have been created in the previous step
+              docker rm sample-app || true
+
+              # Run on port 8081
               docker run -d --name sample-app -p 8081:80 barath0023/sample-app:latest
             fi
           EOF
