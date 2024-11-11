@@ -60,7 +60,14 @@ jobs:
             # Stop any process currently using port 80 (to ensure no conflict)
             sudo fuser -k 80/tcp || true
 
-            # Pull and run the Docker container on an available port
+            # Check if a container named 'sample-app' already exists
+            if docker ps -a --format '{{.Names}}' | grep -q '^sample-app$'; then
+              echo "Stopping and removing the existing 'sample-app' container..."
+              docker stop sample-app || true
+              docker rm sample-app || true
+            fi
+
+            # Pull the latest Docker image
             echo "Pulling Docker image..."
             docker pull barath0023/sample-app:latest
 
