@@ -73,7 +73,7 @@ jobs:
 
             # Check if port 80 is free and use it, otherwise fallback to port 8080
             if sudo lsof -i :80; then
-              echo "Port 80 is in use, using port 8080..."
+              echo "Port 81 is in use, using port 8081..."
               docker run -d --name sample-app -p 8081:80 barath0023/sample-app:latest
             else
               echo "Port 80 is free, using port 80..."
