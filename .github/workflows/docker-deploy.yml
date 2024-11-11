@@ -71,12 +71,10 @@ jobs:
             echo "Pulling Docker image..."
             docker pull barath0023/sample-app:latest
 
-            # Check if port 80 is free and use it, otherwise fallback to port 8080
-            if sudo lsof -i :80; then
-              echo "Port 81 is in use, using port 8081..."
+            # Attempt to run on port 80, fallback to port 8081 if port 80 fails
+            echo "Attempting to run on port 80..."
+            if ! docker run -d --name sample-app -p 80:80 barath0023/sample-app:latest; then
+              echo "Port 80 failed. Attempting to run on port 8081..."
               docker run -d --name sample-app -p 8081:80 barath0023/sample-app:latest
-            else
-              echo "Port 80 is free, using port 80..."
-              docker run -d --name sample-app -p 80:80 barath0023/sample-app:latest
             fi
           EOF
