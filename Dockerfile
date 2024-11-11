@@ -1,5 +1,5 @@
 # Use official Node.js runtime as a base image
-FROM node:14
+FROM node:16
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose port 8080
-EXPOSE 8080
+EXPOSE 8081
 
 # Start the app
 CMD ["node", "app.js"]
