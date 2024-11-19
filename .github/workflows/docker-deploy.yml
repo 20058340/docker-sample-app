@@ -1,7 +1,7 @@
 name: Docker Deploy Pipeline
 
 on:
-  push:
+  push: 
     branches:
       - main  # Triggers on push to 'main' branch
 
